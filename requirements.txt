@@ -1,0 +1,4 @@
+requests
+plyer
+beautifulsoup4
+Flask

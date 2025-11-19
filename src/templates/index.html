@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free Game Finder</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Skip link for keyboard users -->
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header role="banner">
+      <h1>Free Game Finder</h1>
+    </header>
+
+    <main
+      id="main-content"
+      class="game-grid"
+      role="main"
+      aria-label="List of free games"
+    >
+      <!-- Live region for announcements (e.g., dynamic countdown updates) -->
+      <div id="aria-live" aria-live="polite" class="visually-hidden"></div>
+
+      {% for game in games %}
+
+      <a
+        href="{{ game.url }}"
+        target="_blank"
+        class="game-card"
+        aria-label="{{ game.title }} — {{ game.source }} — Ends in {{ game.countdown }}"
+      >
+        <article
+          class="card-content"
+          role="article"
+          aria-labelledby="title-{{ loop.index }}"
+        >
+          <img
+            src="{{ game.image_url }}"
+            alt="{{ game.title }} cover"
+            class="game-image"
+          />
+
+          <div class="game-info">
+            <p id="title-{{ loop.index }}" class="game-title">
+              {{ game.title }}
+            </p>  
+            <small class="game-countdown" aria-hidden="true"
+              >Ends in: {{ game.countdown }}</small
+            >
+            <small class="game-source">Source: {{ game.source }}</small>
+          </div>
+        </article>
+      </a>
+
+      {% endfor %} {% if not games %}
+      <p class="no-games">
+        No free games are currently available. Check back soon!
+      </p>
+      {% endif %}
+    </main>
+  </body>
+</html>

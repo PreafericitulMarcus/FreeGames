@@ -1,0 +1,113 @@
+/* Minimalist Reset */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background-color: #121212; /* Dark Mode for a clean look */
+  color: #f0f0f0;
+  margin: 0;
+  padding: 10vh 20px 20px 20px;
+}
+
+/* Accessibility helpers */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; /* added line to prevent wrapping */
+}
+
+/* Skip link - hidden but visible on keyboard focus */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 1000;
+}
+.skip-link:focus,
+.skip-link:active {
+  left: 10px;
+  top: 10px;
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  background: #000000;
+  color: #ffffff;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+/* Visible focus style for keyboard users */
+.game-card:focus-visible {
+  outline: 3px solid #4caf50;
+  outline-offset: 3px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* CSS GRID for the main layout */
+.game-grid {
+  display: grid;
+  /* Auto-fit creates columns that are at least 300px wide, making it responsive */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Individual Game Card Styling */
+.game-card {
+  text-decoration: none; /* Remove underline from the link */
+  color: inherit;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.game-card:hover {
+  transform: translateY(-5px); /* Lift card on hover */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+}
+
+.game-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.game-info {
+  padding: 15px;
+  background-color: #1e1e1e; /* Darker background for info block */
+}
+
+.game-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* ... for long titles */
+}
+
+.game-countdown,
+.game-source {
+  display: block;
+  color: #bbbbbb;
+  font-size: 0.85em;
+}
+
+.game-source {
+  margin-top: 5px;
+  font-weight: 600;
+  color: #4caf50; /* Green color to highlight the source */
+}
