@@ -1,88 +1,81 @@
 import requests
 from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
 
-API = (
-    "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
-    "?locale=en-US&country=US"
-)
+def request_handle():
+    URL = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
+    try:
+        response = requests.get(URL, timeout=10)
+        response.raise_for_status()
+        content =  response.json()
+    except request.exceptions.HTTPError as errh:
+        raise SystemExit("HTTP Error:", errh)
+    except request.exeptions.Timeout as errt:
+        raise SystemExit("Timeout Error:", errt)
+    except requests.exceptions.JSONDecodeError as errj:
+        raise SystemExit("Jsor Decode Error:", errj)
+    return content
 
+def validate_free(game):
+    promotions = game.get("promotions") 
+    discount_price = game.get("price", {}).get("totalPrice", {}).get("discountPrice")
+
+    if discount_price == 0 and promotions != None:
+        return True
+    else:
+        return False
+
+def get_title(game):
+    title = game.get("title", "Untitled")
+    return title
+
+def get_image_url(game):
+    image_options = game.get("keyImages", [])
+    image_url = "N/A"
+    for image in image_options:
+        if image.get("type") == "OfferImageWide":
+            image_url = image.get("url")
+        elif image.get("type") == "Thumbnail":
+            image_url = image.get("url")
+    return image_url 
+
+def get_countdown_end_of_promotion(game):
+    end_date_string = game.get("promotions", {}).get("promotionalOffers", [])[0].get("promotionalOffers", [])[0].get("endDate")
+    end_date = datetime.fromisoformat(end_date_string.replace("Z", "+00:00"))
+
+    now_date = datetime.now(timezone.utc)
+
+    until_expiration = end_date - now_date
+    days = until_expiration.days
+    hours = until_expiration.seconds // 3600
+    minutes = (until_expiration.seconds % 3600) // 60 
+
+    countdown =f"{days}d {hours}h {minutes}m" 
+
+    return countdown
+
+def get_game_url(game):
+    page_slug = game.get("offerMappings", [])[0].get("pageSlug")
+    game_url = f"https://store.epicgames.com/en-US/p/{page_slug}"
+    return game_url
 
 def fetch_free_epic_games():
-    response = requests.get(API, timeout=10)
-    response.raise_for_status()
-    data = response.json()
-    games = data.get("data", {}).get("Catalog", {}).get("searchStore", {}).get("elements", [])
+    response_data = request_handle()
+
+    games_data = response_data.get("data", {}).get("Catalog", {}).get("searchStore", {}).get("elements", [])
 
     free_games = []
+    for game in games_data:
+        if validate_free(game) == False:
+            continue
 
-    for game in games:
-        promotions = game.get("promotions") or {}
-        offer_windows = [] # this may be null in the page
-        offer_windows.extend(promotions.get("promotionalOffers", []))
-        offer_windows.extend(promotions.get("upcomingPromotionalOffers", []))
-
-        discount_price = (
-            game.get("price", {}).get("totalPrice", {}).get("discountPrice")
+        free_games.append(
+            {
+                "title": get_title(game),
+                "image_url": get_image_url(game),
+                "countdown": get_countdown_end_of_promotion(game),
+                "url": get_game_url(game),
+                "source": "Epic Games"
+            }
         )
 
-        if discount_price == 0 and offer_windows:
-            title = game.get("title", "Untitled")
-
-            image_url = next(
-                (img.get("url") for img in game.get("keyImages", []) if img.get("type") == "OfferImageWide"),
-                next((img.get("url") for img in game.get("keyImages", []) if img.get("type") == "Thumbnail"), "N/A"),
-            )
-
-            chosen_offer = None
-            for window in offer_windows:
-                offers = window.get("promotionalOffers", [])
-                if offers:
-                    chosen_offer = offers[0]
-                    break
-
-            end_date_str = chosen_offer.get("endDate")
-
-            try:
-                end_dt = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
-
-                bucharest = ZoneInfo("Europe/Bucharest")
-                end_dt_buch = end_dt.astimezone(bucharest)
-                end_date = end_dt_buch.strftime("%Y-%m-%d %H:%M:%S %Z")
-
-                now_utc = datetime.now(timezone.utc)
-                delta = end_dt - now_utc
-                if delta.total_seconds() <= 0:
-                    countdown = "Expired"
-                else:
-                    days = delta.days
-                    hours = delta.seconds // 3600
-                    minutes = (delta.seconds % 3600) // 60
-                    countdown = f"{days}d {hours}h {minutes}m"
-            except Exception:
-                end_date = end_date_str or "N/A"
-                countdown = end_date_str or "N/A"
-
-            page_slug = (
-                game.get("pageSlug")
-                or next((m.get("pageSlug") for m in game.get("offerMappings", []) if m.get("pageSlug")), None)
-                or (chosen_offer.get("pageSlug") if chosen_offer and chosen_offer.get("pageSlug") else None)
-                or game.get("productSlug")
-                or game.get("urlSlug")
-                or ""
-            )
-            game_url = f"https://store.epicgames.com/en-US/p/{page_slug}" if page_slug else "N/A"
-
-            free_games.append(
-                {
-                    "title": title,
-                    "image_url": image_url,
-                    "end_date": end_date,
-                    "countdown": countdown,
-                    "url": game_url,
-                    "source": "Epic Games"
-                }
-            )
-
     return free_games
-

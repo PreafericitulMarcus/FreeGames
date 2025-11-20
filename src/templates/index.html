@@ -3,19 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Free Game Finder</title>
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
+	  href="{{ url_for('static', filename='css/style.css') }}"
     />
   </head>
   <body>
-    <!-- Skip link for keyboard users -->
     <a class="skip-link" href="#main-content">Skip to content</a>
-
-    <header role="banner">
-      <h1>Free Game Finder</h1>
-    </header>
 
     <main
       id="main-content"
@@ -23,7 +17,6 @@
       role="main"
       aria-label="List of free games"
     >
-      <!-- Live region for announcements (e.g., dynamic countdown updates) -->
       <div id="aria-live" aria-live="polite" class="visually-hidden"></div>
 
       {% for game in games %}
