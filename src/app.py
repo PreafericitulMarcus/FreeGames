@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from freegames import load_free_games_data 
+from loader import load_free_games_data 
 
 app = Flask(__name__)
 

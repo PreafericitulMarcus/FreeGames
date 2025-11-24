@@ -7,15 +7,15 @@ def request_handle():
         response = requests.get(URL, timeout=10)
         response.raise_for_status()
         content =  response.json()
-    except request.exceptions.HTTPError as errh:
+    except requests.exceptions.HTTPError as errh:
         raise SystemExit("HTTP Error:", errh)
-    except request.exeptions.Timeout as errt:
+    except requests.exeptions.Timeout as errt:
         raise SystemExit("Timeout Error:", errt)
     except requests.exceptions.JSONDecodeError as errj:
         raise SystemExit("Jsor Decode Error:", errj)
     return content
 
-def validate_free(game):
+def is_free(game):
     promotions = game.get("promotions") 
     discount_price = game.get("price", {}).get("totalPrice", {}).get("discountPrice")
 
@@ -42,9 +42,9 @@ def get_countdown_end_of_promotion(game):
     end_date_string = game.get("promotions", {}).get("promotionalOffers", [])[0].get("promotionalOffers", [])[0].get("endDate")
     end_date = datetime.fromisoformat(end_date_string.replace("Z", "+00:00"))
 
-    now_date = datetime.now(timezone.utc)
+    date_now = datetime.now(timezone.utc)
 
-    until_expiration = end_date - now_date
+    until_expiration = end_date - date_now
     days = until_expiration.days
     hours = until_expiration.seconds // 3600
     minutes = (until_expiration.seconds % 3600) // 60 
@@ -65,7 +65,7 @@ def fetch_free_epic_games():
 
     free_games = []
     for game in games_data:
-        if validate_free(game) == False:
+        if not is_free(game):
             continue
 
         free_games.append(

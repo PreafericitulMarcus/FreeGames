@@ -2,7 +2,7 @@ import json
 import os
 from providers.epic_games import fetch_free_epic_games
 
-DATA_FILE = os.path.join(os.path.dirname(__file__), "data", "games.json")
+DATA_FILE = os.path.join(os.path.dirname(__file__), "gamedata", "games.json")
 
 def update_free_games_data():
     """Runs all scrapers, compiles results, and saves to JSON."""
