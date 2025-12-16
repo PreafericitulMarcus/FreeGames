@@ -1,8 +1,10 @@
 import json
 import os
-from providers.epic_games import fetch_free_epic_games
+
+from core.providers.epic_games import fetch_free_epic_games
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), "gamedata", "games.json")
+
 
 def update_free_games_data():
     """Runs all scrapers, compiles results, and saves to JSON."""
@@ -21,7 +23,7 @@ def update_free_games_data():
 
     # Save the compiled data
     try:
-        with open(DATA_FILE, 'w') as f:
+        with open(DATA_FILE, "w") as f:
             json.dump(all_games, f, indent=4)
         print(f"Successfully saved {len(all_games)} total free games to games.json.")
         return True
@@ -29,13 +31,14 @@ def update_free_games_data():
         print(f"Error saving data: {e}")
         return False
 
+
 def load_free_games_data():
     """Loads the last saved game data from JSON."""
     update_free_games_data()
     if not os.path.exists(DATA_FILE):
         return []
     try:
-        with open(DATA_FILE, 'r') as f:
+        with open(DATA_FILE, "r") as f:
             return json.load(f)
     except Exception as e:
         print(f"Error loading data: {e}")
